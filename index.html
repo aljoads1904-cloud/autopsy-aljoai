@@ -134,7 +134,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 /* === Hero === */
 .hero {
-  padding: 80px 0 60px;
+  padding: 56px 0 80px;
   position: relative;
 }
 
@@ -147,7 +147,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--accent-deep);
-  margin-bottom: 32px;
+  margin-bottom: 24px;
   padding: 8px 14px;
   border: 1px solid var(--line-strong);
   border-radius: 100px;
@@ -171,10 +171,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .hero-headline {
   font-family: 'Fraunces', serif;
   font-weight: 500;
-  font-size: clamp(48px, 7vw, 96px);
-  line-height: 0.98;
+  font-size: clamp(40px, 5.5vw, 76px);
+  line-height: 1;
   letter-spacing: -0.04em;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
   max-width: 1100px;
 }
 
@@ -203,10 +203,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 
 .hero-sub {
-  font-size: 22px;
+  font-size: 19px;
   line-height: 1.5;
   max-width: 720px;
-  margin-bottom: 48px;
+  margin-bottom: 0;
   color: rgba(14, 15, 12, 0.78);
   font-weight: 400;
 }
@@ -221,7 +221,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   align-items: center;
   gap: 24px;
   flex-wrap: wrap;
-  margin-bottom: 80px;
+  margin-bottom: 64px;
 }
 
 .btn-primary {
@@ -285,6 +285,126 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .btn-secondary:hover {
   color: var(--accent-deep);
   border-color: var(--accent-deep);
+}
+
+/* === Hero Video — Front and Center === */
+.hero-video {
+  margin: 56px 0 40px;
+  position: relative;
+}
+
+.hero-video-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: rgba(14, 15, 12, 0.65);
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.hero-video-meta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 100px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  font-size: 11px;
+}
+
+.hero-video-meta-divider {
+  color: var(--accent);
+  opacity: 0.6;
+}
+
+.hero-video-frame {
+  position: relative;
+  background: var(--ink);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  box-shadow: 0 24px 60px rgba(14, 15, 12, 0.18), 0 4px 12px rgba(14, 15, 12, 0.08);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+}
+
+.hero-video-frame:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 32px 72px rgba(14, 15, 12, 0.22), 0 8px 16px rgba(14, 15, 12, 0.1);
+}
+
+.hero-video-frame iframe,
+.hero-video-placeholder {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.hero-video-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: 
+    radial-gradient(ellipse at center, rgba(200, 146, 74, 0.12), transparent 60%),
+    linear-gradient(135deg, var(--ink), #1a1c17);
+  position: relative;
+}
+
+.hero-video-placeholder-icon {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+  position: relative;
+  box-shadow: 0 0 0 0 rgba(200, 146, 74, 0.7);
+  animation: pulse-play 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse-play {
+  0% { box-shadow: 0 0 0 0 rgba(200, 146, 74, 0.5); }
+  70% { box-shadow: 0 0 0 24px rgba(200, 146, 74, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(200, 146, 74, 0); }
+}
+
+.hero-video-placeholder-icon::after {
+  content: '';
+  width: 0;
+  height: 0;
+  border-left: 28px solid var(--ink);
+  border-top: 18px solid transparent;
+  border-bottom: 18px solid transparent;
+  margin-left: 8px;
+}
+
+.hero-video-placeholder-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(245, 241, 232, 0.45);
+  text-align: center;
+}
+
+.hero-video-placeholder-text strong {
+  display: block;
+  font-size: 22px;
+  font-family: 'Fraunces', serif;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--paper);
+  margin-bottom: 10px;
+  font-weight: 500;
 }
 
 /* === Hero Stat Strip === */
@@ -511,154 +631,6 @@ section { padding: 100px 0; position: relative; }
   display: block;
   margin-bottom: 4px;
   font-size: 13px;
-}
-
-/* === Loom Video Section === */
-.video-section {
-  background: var(--ink);
-  color: var(--paper);
-  position: relative;
-  overflow: hidden;
-}
-
-.video-section::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at top right, rgba(200, 146, 74, 0.12), transparent 50%);
-  pointer-events: none;
-}
-
-.video-section .section-label { color: var(--accent); }
-.video-section .section-label::before { background: var(--accent); }
-
-.video-section .section-title em { color: var(--accent); }
-
-.video-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  gap: 80px;
-  align-items: center;
-  margin-top: 60px;
-}
-
-.video-info-num {
-  font-family: 'Fraunces', serif;
-  font-size: 96px;
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: -0.04em;
-  color: var(--accent);
-  margin-bottom: 24px;
-}
-
-.video-info-title {
-  font-family: 'Fraunces', serif;
-  font-size: 32px;
-  font-weight: 500;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  margin-bottom: 24px;
-  color: var(--paper);
-}
-
-.video-info-text {
-  font-size: 17px;
-  line-height: 1.6;
-  color: rgba(245, 241, 232, 0.75);
-  margin-bottom: 32px;
-}
-
-.video-info-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.video-info-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.05em;
-  color: rgba(245, 241, 232, 0.6);
-}
-
-.video-info-row::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-  flex-shrink: 0;
-}
-
-.video-frame {
-  position: relative;
-  background: rgba(245, 241, 232, 0.05);
-  border: 1px solid rgba(245, 241, 232, 0.12);
-  border-radius: 4px;
-  overflow: hidden;
-  aspect-ratio: 16 / 9;
-}
-
-.video-frame iframe,
-.video-placeholder {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-.video-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, rgba(245, 241, 232, 0.04), rgba(200, 146, 74, 0.06));
-  position: relative;
-}
-
-.video-placeholder-icon {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 24px;
-  position: relative;
-}
-
-.video-placeholder-icon::after {
-  content: '';
-  width: 0;
-  height: 0;
-  border-left: 24px solid var(--ink);
-  border-top: 16px solid transparent;
-  border-bottom: 16px solid transparent;
-  margin-left: 6px;
-}
-
-.video-placeholder-text {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: rgba(245, 241, 232, 0.5);
-  text-align: center;
-}
-
-.video-placeholder-text strong {
-  display: block;
-  font-size: 18px;
-  font-family: 'Fraunces', serif;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--paper);
-  margin-bottom: 8px;
-  font-weight: 500;
 }
 
 /* === What You Get === */
@@ -996,7 +968,7 @@ footer {
   .layer-card:nth-child(3) { border-right: none; }
   .layer-card:nth-child(-n+3) { border-bottom: 1px solid var(--line-strong); }
   
-  .video-grid, .layers-intro, .problem-grid {
+  .layers-intro, .problem-grid {
     grid-template-columns: 1fr;
     gap: 48px;
   }
@@ -1015,7 +987,7 @@ footer {
 @media (max-width: 640px) {
   .container { padding: 0 24px; }
   section { padding: 60px 0; }
-  .hero { padding: 48px 0 40px; }
+  .hero { padding: 36px 0 60px; }
   
   .layers-grid { grid-template-columns: 1fr; }
   .layer-card { border-right: none !important; border-bottom: 1px solid var(--line-strong); }
@@ -1030,6 +1002,18 @@ footer {
   .topbar-meta { display: none; }
   .hero-actions { flex-direction: column; align-items: stretch; }
   .btn-primary { justify-content: center; }
+  
+  /* Hero video on mobile */
+  .hero-video { margin: 36px 0 28px; }
+  .hero-video-meta { font-size: 11px; gap: 8px; }
+  .hero-video-meta-tag { font-size: 10px; padding: 4px 10px; }
+  .hero-video-placeholder-icon { width: 72px; height: 72px; margin-bottom: 20px; }
+  .hero-video-placeholder-icon::after {
+    border-left-width: 22px;
+    border-top-width: 14px;
+    border-bottom-width: 14px;
+  }
+  .hero-video-placeholder-text strong { font-size: 18px; }
 }
 
 /* Reveal animations */
@@ -1092,6 +1076,33 @@ footer {
       We diagnose the <strong>six hidden leaks</strong> bleeding margin out of your B2B Shopify operation — manual PO chaos, scattered customer data, dormant native B2B features, slow response velocity, broken reorder loops, and AI-agent blind spots. <strong>Before</strong> you build another thing.
     </p>
     
+    <!-- ============ LOOM VIDEO — FRONT AND CENTER ============ -->
+    <div class="hero-video reveal">
+      <div class="hero-video-meta">
+        <span class="hero-video-meta-tag">⏱ 7-minute walkthrough</span>
+        <span class="hero-video-meta-divider">·</span>
+        <span>Live diagnostic on a $6.4M coffee roaster</span>
+        <span class="hero-video-meta-divider">·</span>
+        <span>$220K leak identified</span>
+      </div>
+      
+      <!-- 
+        LOOM PLACEHOLDER
+        Replace this entire .hero-video-placeholder div with your Loom embed when ready:
+        <iframe src="https://www.loom.com/embed/YOUR_LOOM_ID" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+      -->
+      <div class="hero-video-frame">
+        <div class="hero-video-placeholder">
+          <div class="hero-video-placeholder-icon"></div>
+          <div class="hero-video-placeholder-text">
+            <strong>Demo Walkthrough</strong>
+            Recording in progress · Available shortly
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- ============ CTAs DIRECTLY UNDER VIDEO ============ -->
     <div class="hero-actions reveal">
       <a href="https://calendly.com/justinaconnect/free-hvac-revenue-audit" class="btn-primary">
         <span>Book your 25-min diagnostic</span>
@@ -1212,48 +1223,6 @@ footer {
         <div class="layer-stat">
           <strong>90% by 2028</strong>
           Of B2B buying will be AI-agent-intermediated. Are you ready?
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="video-section" id="demo">
-  <div class="container">
-    <div class="section-label reveal">Watch the diagnostic in motion</div>
-    <h2 class="section-title reveal" style="color:var(--paper);">
-      See the autopsy on a <em>live coffee roaster.</em>
-    </h2>
-    <p class="section-lead reveal" style="color:rgba(245,241,232,0.65); max-width:680px;">
-      A 7-minute walkthrough showing how we diagnose Blackwood Reserve Roasters across all six layers — and identify $220K in annual recoverable margin in under 90 minutes.
-    </p>
-    
-    <div class="video-grid">
-      <div class="video-info reveal">
-        <div class="video-info-num">07:00</div>
-        <h3 class="video-info-title">From a messy inbox to a $220K diagnostic.</h3>
-        <p class="video-info-text">
-          Watch how a single emailed PDF reveals every layer of operational leak — and how the autopsy turns chaos into a prioritized 90-day roadmap.
-        </p>
-        <div class="video-info-meta">
-          <div class="video-info-row">Coffee roaster · $6.4M revenue</div>
-          <div class="video-info-row">112 wholesale accounts · 38 POs/week</div>
-          <div class="video-info-row">8% error rate · $220K annual leak</div>
-        </div>
-      </div>
-      
-      <!-- 
-        LOOM PLACEHOLDER
-        Replace this entire .video-placeholder div with your Loom embed when ready:
-        <iframe src="https://www.loom.com/embed/YOUR_LOOM_ID" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-      -->
-      <div class="video-frame reveal">
-        <div class="video-placeholder">
-          <div class="video-placeholder-icon"></div>
-          <div class="video-placeholder-text">
-            <strong>Demo Walkthrough</strong>
-            Recording in progress · Available shortly
-          </div>
         </div>
       </div>
     </div>
