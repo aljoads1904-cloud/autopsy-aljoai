@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Wholesale Operations Autopsy — Aljoai</title>
+<meta name="description" content="The diagnostic that maps the 6 hidden leaks in your B2B Shopify wholesale operation. Built on the new April 2 native B2B architecture.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter+Tight:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --ink: #0E0F0C;
+  --paper: #F5F1E8;
+  --paper-warm: #EDE6D2;
+  --accent: #C8924A;
+  --accent-deep: #8B5E2B;
+  --rust: #B5462E;
+  --moss: #4A5D3F;
+  --line: rgba(14, 15, 12, 0.12);
+  --line-strong: rgba(14, 15, 12, 0.3);
+  --shadow: 0 1px 0 rgba(14, 15, 12, 0.04), 0 8px 24px rgba(14, 15, 12, 0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Inter Tight', sans-serif;
+  font-weight: 400;
+  line-height: 1.55;
+  font-size: 17px;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3CfeColorMatrix values='0 0 0 0 0.05 0 0 0 0 0.06 0 0 0 0 0.05 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px;
+  position: relative;
+  z-index: 2;
+}
+
+/* === Top Bar === */
+.topbar {
+  border-bottom: 1px solid var(--line);
+  padding: 22px 0;
+  position: sticky;
+  top: 0;
+  background: rgba(245, 241, 232, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 100;
+}
+
+.topbar-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+
+.brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--ink);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.brand-mark::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.topbar-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0.65;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.topbar-meta-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--moss);
+  border-radius: 50%;
+  display: inline-block;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.3); }
+}
+
+/* === Hero === */
+.hero {
+  padding: 80px 0 60px;
+  position: relative;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+  margin-bottom: 32px;
+  padding: 8px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 100px;
+  background: rgba(200, 146, 74, 0.06);
+}
+
+.hero-tag-pulse {
+  width: 7px;
+  height: 7px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 var(--accent);
+  animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes ping {
+  0% { box-shadow: 0 0 0 0 rgba(200, 146, 74, 0.6); }
+  100% { box-shadow: 0 0 0 8px rgba(200, 146, 74, 0); }
+}
+
+.hero-headline {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(48px, 7vw, 96px);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  margin-bottom: 28px;
+  max-width: 1100px;
+}
+
+.hero-headline em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent-deep);
+}
+
+.hero-headline-mark {
+  position: relative;
+  display: inline-block;
+}
+
+.hero-headline-mark::after {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  left: -2px;
+  right: -2px;
+  height: 14px;
+  background: var(--accent);
+  opacity: 0.35;
+  z-index: -1;
+  transform: skew(-2deg);
+}
+
+.hero-sub {
+  font-size: 22px;
+  line-height: 1.5;
+  max-width: 720px;
+  margin-bottom: 48px;
+  color: rgba(14, 15, 12, 0.78);
+  font-weight: 400;
+}
+
+.hero-sub strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 80px;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 32px;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent-deep);
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary span { position: relative; z-index: 1; }
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(14, 15, 12, 0.18);
+}
+
+.btn-primary:hover::before {
+  transform: translateY(0);
+}
+
+.btn-arrow {
+  width: 20px; height: 20px;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+
+.btn-primary:hover .btn-arrow {
+  transform: translateX(4px);
+}
+
+.btn-secondary {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 4px;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  color: var(--accent-deep);
+  border-color: var(--accent-deep);
+}
+
+/* === Hero Stat Strip === */
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
+  padding: 36px 0;
+}
+
+.stat-item {
+  padding: 0 28px;
+  border-right: 1px solid var(--line);
+}
+
+.stat-item:last-child { border-right: none; }
+.stat-item:first-child { padding-left: 0; }
+
+.stat-num {
+  font-family: 'Fraunces', serif;
+  font-size: 56px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+  color: var(--ink);
+}
+
+.stat-num em {
+  color: var(--accent-deep);
+  font-style: italic;
+}
+
+.stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0.65;
+  line-height: 1.5;
+}
+
+/* === Sections === */
+section { padding: 100px 0; position: relative; }
+
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.section-label::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--accent-deep);
+}
+
+.section-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 32px;
+  max-width: 900px;
+}
+
+.section-title em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent-deep);
+}
+
+.section-lead {
+  font-size: 20px;
+  line-height: 1.55;
+  max-width: 720px;
+  color: rgba(14, 15, 12, 0.75);
+  margin-bottom: 48px;
+}
+
+/* === The Problem Section === */
+.problem-section {
+  background: var(--paper-warm);
+  border-top: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.problem-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+
+.problem-text { padding-right: 20px; }
+
+.problem-callout {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 48px 40px;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.problem-callout::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(200, 146, 74, 0.15), transparent 60%);
+  pointer-events: none;
+}
+
+.problem-callout-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.problem-callout-quote {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.problem-callout-attribution {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(245, 241, 232, 0.55);
+  position: relative;
+}
+
+/* === The 6 Layers === */
+.layers-section { background: var(--paper); }
+
+.layers-intro {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 80px;
+  align-items: end;
+  margin-bottom: 80px;
+}
+
+.layers-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-warm);
+}
+
+.layer-card {
+  padding: 36px 28px;
+  border-right: 1px solid var(--line-strong);
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.layer-card:last-child { border-right: none; }
+
+.layer-card:hover {
+  background: var(--paper);
+  transform: translateY(-4px);
+}
+
+.layer-num {
+  font-family: 'Fraunces', serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-deep);
+  margin-bottom: 16px;
+  letter-spacing: 0.05em;
+}
+
+.layer-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+  min-height: 72px;
+}
+
+.layer-stat {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  opacity: 0.7;
+  line-height: 1.5;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+
+.layer-stat strong {
+  color: var(--rust);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+/* === Loom Video Section === */
+.video-section {
+  background: var(--ink);
+  color: var(--paper);
+  position: relative;
+  overflow: hidden;
+}
+
+.video-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top right, rgba(200, 146, 74, 0.12), transparent 50%);
+  pointer-events: none;
+}
+
+.video-section .section-label { color: var(--accent); }
+.video-section .section-label::before { background: var(--accent); }
+
+.video-section .section-title em { color: var(--accent); }
+
+.video-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 80px;
+  align-items: center;
+  margin-top: 60px;
+}
+
+.video-info-num {
+  font-family: 'Fraunces', serif;
+  font-size: 96px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--accent);
+  margin-bottom: 24px;
+}
+
+.video-info-title {
+  font-family: 'Fraunces', serif;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+  color: var(--paper);
+}
+
+.video-info-text {
+  font-size: 17px;
+  line-height: 1.6;
+  color: rgba(245, 241, 232, 0.75);
+  margin-bottom: 32px;
+}
+
+.video-info-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.video-info-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: rgba(245, 241, 232, 0.6);
+}
+
+.video-info-row::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.video-frame {
+  position: relative;
+  background: rgba(245, 241, 232, 0.05);
+  border: 1px solid rgba(245, 241, 232, 0.12);
+  border-radius: 4px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+}
+
+.video-frame iframe,
+.video-placeholder {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.video-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(245, 241, 232, 0.04), rgba(200, 146, 74, 0.06));
+  position: relative;
+}
+
+.video-placeholder-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.video-placeholder-icon::after {
+  content: '';
+  width: 0;
+  height: 0;
+  border-left: 24px solid var(--ink);
+  border-top: 16px solid transparent;
+  border-bottom: 16px solid transparent;
+  margin-left: 6px;
+}
+
+.video-placeholder-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(245, 241, 232, 0.5);
+  text-align: center;
+}
+
+.video-placeholder-text strong {
+  display: block;
+  font-size: 18px;
+  font-family: 'Fraunces', serif;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--paper);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+/* === What You Get === */
+.deliverables-section {
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+}
+
+.deliverables-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-warm);
+}
+
+.deliverable {
+  padding: 48px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  transition: background 0.3s ease;
+}
+
+.deliverable:nth-child(2n) { border-right: none; }
+.deliverable:nth-last-child(-n+2) { border-bottom: none; }
+.deliverable:hover { background: var(--paper); }
+
+.deliverable-num {
+  font-family: 'Fraunces', serif;
+  font-size: 56px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--accent);
+  margin-bottom: 24px;
+  font-style: italic;
+}
+
+.deliverable-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+}
+
+.deliverable-text {
+  color: rgba(14, 15, 12, 0.7);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* === Pricing === */
+.pricing-section {
+  background: var(--paper-warm);
+  border-top: 1px solid var(--line-strong);
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 60px;
+}
+
+.tier {
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  padding: 48px 36px;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.tier:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow);
+  border-color: var(--accent);
+}
+
+.tier-featured {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.tier-featured::before {
+  content: 'Most popular';
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: var(--ink);
+  padding: 6px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+
+.tier-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+  margin-bottom: 20px;
+}
+
+.tier-featured .tier-tag {
+  color: var(--accent);
+}
+
+.tier-name {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 32px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+.tier-price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.tier-featured .tier-price {
+  border-color: rgba(245, 241, 232, 0.15);
+}
+
+.tier-price-num {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 56px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.tier-price-num sub {
+  font-size: 24px;
+  vertical-align: baseline;
+  margin-right: 6px;
+  opacity: 0.6;
+}
+
+.tier-price-period {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.tier-desc {
+  font-size: 16px;
+  line-height: 1.55;
+  color: rgba(14, 15, 12, 0.7);
+  margin-bottom: 28px;
+}
+
+.tier-featured .tier-desc {
+  color: rgba(245, 241, 232, 0.7);
+}
+
+.tier-features {
+  list-style: none;
+  margin-bottom: 32px;
+  flex-grow: 1;
+}
+
+.tier-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  border-bottom: 1px dashed var(--line);
+}
+
+.tier-featured .tier-features li {
+  border-color: rgba(245, 241, 232, 0.1);
+}
+
+.tier-features li::before {
+  content: '+';
+  color: var(--accent-deep);
+  font-weight: 700;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.tier-featured .tier-features li::before {
+  color: var(--accent);
+}
+
+.tier-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  transition: all 0.3s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.tier-featured .tier-cta {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.tier-cta:hover {
+  background: var(--accent-deep);
+  color: var(--paper);
+}
+
+.tier-featured .tier-cta:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.tier-guarantee {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--moss);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tier-featured .tier-guarantee {
+  border-color: rgba(245, 241, 232, 0.15);
+  color: var(--accent);
+}
+
+/* === Final CTA === */
+.final-cta {
+  background: var(--ink);
+  color: var(--paper);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.final-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(200, 146, 74, 0.15), transparent 60%);
+  pointer-events: none;
+}
+
+.final-cta-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.final-cta-headline {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(40px, 5vw, 72px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 32px;
+}
+
+.final-cta-headline em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+}
+
+.final-cta-text {
+  font-size: 20px;
+  line-height: 1.6;
+  color: rgba(245, 241, 232, 0.75);
+  margin-bottom: 48px;
+}
+
+.final-cta .btn-primary {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.final-cta .btn-primary::before {
+  background: var(--paper);
+}
+
+.final-cta .btn-primary:hover {
+  color: var(--ink);
+}
+
+/* === Footer === */
+footer {
+  padding: 48px 0;
+  border-top: 1px solid var(--line);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(14, 15, 12, 0.5);
+}
+
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* === Responsive === */
+@media (max-width: 1024px) {
+  .layers-grid { grid-template-columns: repeat(3, 1fr); }
+  .layer-card:nth-child(3) { border-right: none; }
+  .layer-card:nth-child(-n+3) { border-bottom: 1px solid var(--line-strong); }
+  
+  .video-grid, .layers-intro, .problem-grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+  
+  .pricing-grid { grid-template-columns: 1fr; gap: 24px; }
+  
+  .stat-strip { grid-template-columns: repeat(2, 1fr); gap: 32px 0; }
+  .stat-item:nth-child(2) { border-right: none; }
+  .stat-item:nth-child(3) { padding-left: 0; }
+  
+  .deliverables-grid { grid-template-columns: 1fr; }
+  .deliverable { border-right: none !important; }
+  .deliverable:last-child { border-bottom: none; }
+}
+
+@media (max-width: 640px) {
+  .container { padding: 0 24px; }
+  section { padding: 60px 0; }
+  .hero { padding: 48px 0 40px; }
+  
+  .layers-grid { grid-template-columns: 1fr; }
+  .layer-card { border-right: none !important; border-bottom: 1px solid var(--line-strong); }
+  .layer-card:last-child { border-bottom: none; }
+  
+  .stat-num { font-size: 42px; }
+  .stat-strip { padding: 28px 0; }
+  
+  .deliverable { padding: 32px 24px; }
+  .tier { padding: 36px 28px; }
+  
+  .topbar-meta { display: none; }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .btn-primary { justify-content: center; }
+}
+
+/* Reveal animations */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-stagger.visible > *:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0ms; }
+.reveal-stagger.visible > *:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 80ms; }
+.reveal-stagger.visible > *:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 160ms; }
+.reveal-stagger.visible > *:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 240ms; }
+.reveal-stagger.visible > *:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 320ms; }
+.reveal-stagger.visible > *:nth-child(6) { opacity: 1; transform: translateY(0); transition-delay: 400ms; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">
+    <div class="topbar-inner">
+      <a href="/" class="brand">
+        <span class="brand-mark"></span>
+        <span>Aljoai</span>
+      </a>
+      <div class="topbar-meta">
+        <span><span class="topbar-meta-dot"></span>Booking May audits</span>
+        <span>·</span>
+        <a href="https://calendly.com/justinaconnect/free-hvac-revenue-audit" class="btn-secondary" style="border:none;padding:0;font-size:11px;">Book a call →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-tag reveal">
+      <span class="hero-tag-pulse"></span>
+      <span>April 2 · Native B2B unlocked on every Shopify plan</span>
+    </div>
+    
+    <h1 class="hero-headline reveal">
+      The <em>Wholesale</em><br>
+      <span class="hero-headline-mark">Operations</span> Autopsy.
+    </h1>
+    
+    <p class="hero-sub reveal">
+      We diagnose the <strong>six hidden leaks</strong> bleeding margin out of your B2B Shopify operation — manual PO chaos, scattered customer data, dormant native B2B features, slow response velocity, broken reorder loops, and AI-agent blind spots. <strong>Before</strong> you build another thing.
+    </p>
+    
+    <div class="hero-actions reveal">
+      <a href="https://calendly.com/justinaconnect/free-hvac-revenue-audit" class="btn-primary">
+        <span>Book your 25-min diagnostic</span>
+        <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-7-7l7 7-7 7"/></svg>
+      </a>
+      <a href="/scorecard.html" class="btn-secondary">See a sample scorecard →</a>
+    </div>
+    
+    <div class="stat-strip reveal-stagger">
+      <div class="stat-item">
+        <div class="stat-num"><em>$220K</em></div>
+        <div class="stat-label">Average annual leak<br>identified per audit</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">95%</div>
+        <div class="stat-label">Of AI pilots fail.<br>Data quality is why.</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">47<span style="font-size:32px;opacity:0.6">hrs</span></div>
+        <div class="stat-label">Average B2B<br>response time</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">6</div>
+        <div class="stat-label">Operational layers<br>diagnosed</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="problem-section" id="problem">
+  <div class="container">
+    <div class="problem-grid">
+      <div class="problem-text">
+        <div class="section-label reveal">The trap</div>
+        <h2 class="section-title reveal">
+          Your portal works.<br>
+          Your <em>process</em> doesn't.
+        </h2>
+        <p class="section-lead reveal">
+          On April 2, 2026, Shopify dropped enterprise B2B features — company profiles, custom price lists, net payment terms, customer-specific catalogs — onto every paid plan.
+        </p>
+        <p class="section-lead reveal" style="margin-bottom:0;">
+          Then nothing changed. Wholesale buyers still email PDFs. Your senior ops person still types orders into Shopify. Variants still get confused. Net 30 invoices still leave six days late. Your portal is enterprise-grade. Your process is duct-taped together.
+        </p>
+      </div>
+      <div class="problem-callout reveal">
+        <div class="problem-callout-label">The gap most agencies miss</div>
+        <div class="problem-callout-quote">
+          "We sold them an AI tool. They installed it on broken workflows. The errors compounded at scale, and they blamed the AI."
+        </div>
+        <div class="problem-callout-attribution">— Why 95% of B2B AI pilots fail</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="layers-section" id="how-it-works">
+  <div class="container">
+    <div class="layers-intro">
+      <div>
+        <div class="section-label reveal">What we audit</div>
+        <h2 class="section-title reveal">
+          Six layers.<br>
+          One <em>autopsy</em>.
+        </h2>
+      </div>
+      <div>
+        <p class="section-lead reveal">
+          The Wholesale Operations Autopsy maps every place revenue is leaving your business — from inquiry to reorder to AI-agent discoverability. You leave with a <strong>scored diagnostic</strong>, the <strong>top three priorities</strong>, and a <strong>90-day roadmap</strong>.
+        </p>
+      </div>
+    </div>
+    
+    <div class="layers-grid reveal-stagger">
+      <div class="layer-card">
+        <div class="layer-num">L01</div>
+        <h3 class="layer-title">PO Intake Chaos</h3>
+        <div class="layer-stat">
+          <strong>$7–$27 per order</strong>
+          Manual processing cost vs $2–$6 automated. 3–9% error rate.
+        </div>
+      </div>
+      <div class="layer-card">
+        <div class="layer-num">L02</div>
+        <h3 class="layer-title">Data Scatter</h3>
+        <div class="layer-stat">
+          <strong>67% of brands</strong>
+          Run wholesale from spreadsheets and email under 500 accounts.
+        </div>
+      </div>
+      <div class="layer-card">
+        <div class="layer-num">L03</div>
+        <h3 class="layer-title">Native B2B Setup</h3>
+        <div class="layer-stat">
+          <strong>5 weeks live</strong>
+          April 2 features unused by most mid-market merchants.
+        </div>
+      </div>
+      <div class="layer-card">
+        <div class="layer-num">L04</div>
+        <h3 class="layer-title">Response Velocity</h3>
+        <div class="layer-stat">
+          <strong>78% of buyers</strong>
+          Buy from the first vendor to respond. Average lag: 47 hours.
+        </div>
+      </div>
+      <div class="layer-card">
+        <div class="layer-num">L05</div>
+        <h3 class="layer-title">Reorder Friction</h3>
+        <div class="layer-stat">
+          <strong>$1K–$5K per account</strong>
+          Lost annually per cafe due to reorder gaps and slow service.
+        </div>
+      </div>
+      <div class="layer-card">
+        <div class="layer-num">L06</div>
+        <h3 class="layer-title">Agent Future-Proof</h3>
+        <div class="layer-stat">
+          <strong>90% by 2028</strong>
+          Of B2B buying will be AI-agent-intermediated. Are you ready?
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="video-section" id="demo">
+  <div class="container">
+    <div class="section-label reveal">Watch the diagnostic in motion</div>
+    <h2 class="section-title reveal" style="color:var(--paper);">
+      See the autopsy on a <em>live coffee roaster.</em>
+    </h2>
+    <p class="section-lead reveal" style="color:rgba(245,241,232,0.65); max-width:680px;">
+      A 7-minute walkthrough showing how we diagnose Blackwood Reserve Roasters across all six layers — and identify $220K in annual recoverable margin in under 90 minutes.
+    </p>
+    
+    <div class="video-grid">
+      <div class="video-info reveal">
+        <div class="video-info-num">07:00</div>
+        <h3 class="video-info-title">From a messy inbox to a $220K diagnostic.</h3>
+        <p class="video-info-text">
+          Watch how a single emailed PDF reveals every layer of operational leak — and how the autopsy turns chaos into a prioritized 90-day roadmap.
+        </p>
+        <div class="video-info-meta">
+          <div class="video-info-row">Coffee roaster · $6.4M revenue</div>
+          <div class="video-info-row">112 wholesale accounts · 38 POs/week</div>
+          <div class="video-info-row">8% error rate · $220K annual leak</div>
+        </div>
+      </div>
+      
+      <!-- 
+        LOOM PLACEHOLDER
+        Replace this entire .video-placeholder div with your Loom embed when ready:
+        <iframe src="https://www.loom.com/embed/YOUR_LOOM_ID" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+      -->
+      <div class="video-frame reveal">
+        <div class="video-placeholder">
+          <div class="video-placeholder-icon"></div>
+          <div class="video-placeholder-text">
+            <strong>Demo Walkthrough</strong>
+            Recording in progress · Available shortly
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="deliverables-section" id="deliverables">
+  <div class="container">
+    <div class="section-label reveal">What you walk away with</div>
+    <h2 class="section-title reveal">
+      Six artifacts.<br>
+      One <em>roadmap</em>.
+    </h2>
+    <p class="section-lead reveal">
+      The Wholesale Operations Autopsy is not a discovery call. It is a 90-minute working session with you and your senior ops person, followed by a complete diagnostic deliverable package.
+    </p>
+    
+    <div class="deliverables-grid reveal-stagger">
+      <div class="deliverable">
+        <div class="deliverable-num">01</div>
+        <h3 class="deliverable-title">The Six-Layer Scorecard</h3>
+        <p class="deliverable-text">A scored diagnostic across all six wholesale operation layers, each marked Good, Risky, or Critical with quantified leak estimates.</p>
+        <a href="/scorecard.html" style="display:inline-flex;align-items:center;gap:8px;margin-top:20px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent-deep);border-bottom:1px solid var(--accent-deep);padding-bottom:4px;transition:gap 0.3s ease;">View a sample scorecard <span>→</span></a>
+      </div>
+      <div class="deliverable">
+        <div class="deliverable-num">02</div>
+        <h3 class="deliverable-title">The 2+2+2 Priority Page</h3>
+        <p class="deliverable-text">Two biggest bottlenecks. Two quick fixes you can deploy this week. Two high-impact automation wins for the next 90 days.</p>
+      </div>
+      <div class="deliverable">
+        <div class="deliverable-num">03</div>
+        <h3 class="deliverable-title">Data Pain Point Log</h3>
+        <p class="deliverable-text">A documented map of every place your wholesale data fragments — across Shopify, email, spreadsheets, and accounting systems.</p>
+      </div>
+      <div class="deliverable">
+        <div class="deliverable-num">04</div>
+        <h3 class="deliverable-title">Tool Stack Recommendation</h3>
+        <p class="deliverable-text">The exact integration architecture for your specific operation — Make.com, Airtable, Shopify GraphQL, OpenAI extraction — with rationale.</p>
+      </div>
+      <div class="deliverable">
+        <div class="deliverable-num">05</div>
+        <h3 class="deliverable-title">90-Day Pilot Plan</h3>
+        <p class="deliverable-text">A sequenced deployment roadmap your team or developer can execute, with milestones and measurement criteria for each phase.</p>
+      </div>
+      <div class="deliverable">
+        <div class="deliverable-num">06</div>
+        <h3 class="deliverable-title">Developer Handoff Document</h3>
+        <p class="deliverable-text">Full technical specifications ready to hand to any internal or external builder — agent-ready architecture included.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pricing-section" id="pricing">
+  <div class="container">
+    <div class="section-label reveal">Choose your scope</div>
+    <h2 class="section-title reveal">
+      Diagnose. Build.<br>
+      <em>Or rebuild the whole engine.</em>
+    </h2>
+    <p class="section-lead reveal">
+      Every engagement starts with the Autopsy. From there, you decide how much to deploy. No retainers in the first six months. Project fees only.
+    </p>
+    
+    <div class="pricing-grid">
+      
+      <div class="tier reveal">
+        <div class="tier-tag">Tier I · The Autopsy</div>
+        <h3 class="tier-name">Workflow Autopsy</h3>
+        <div class="tier-price">
+          <span class="tier-price-num"><sub>$</sub>2,500</span>
+          <span class="tier-price-period">One-time</span>
+        </div>
+        <p class="tier-desc">The diagnostic. The scorecard. The roadmap. Everything you need to know what to fix and in what order.</p>
+        <ul class="tier-features">
+          <li>90-minute working session with your ops lead</li>
+          <li>Six-Layer Scorecard delivered as PDF</li>
+          <li>2+2+2 priority page</li>
+          <li>Data Pain Point Log</li>
+          <li>90-Day Pilot Plan</li>
+          <li>Tool Stack Recommendation</li>
+          <li>Developer Handoff Document</li>
+          <li>30-day check-in call</li>
+        </ul>
+        <a href="https://calendly.com/justinaconnect/free-hvac-revenue-audit" class="tier-cta">
+          <span>Book the audit</span>
+          <span>→</span>
+        </a>
+        <div class="tier-guarantee">
+          <span style="color:var(--moss);">●</span> Refund guarantee · No $50K leak found = full refund
+        </div>
+      </div>
+      
+      <div class="tier tier-featured reveal">
+        <div class="tier-tag">Tier II · The Build</div>
+        <h3 class="tier-name">Priority Build</h3>
+        <div class="tier-price">
+          <span class="tier-price-num"><sub>$</sub>7,500</span>
+          <span class="tier-price-period">Project fee</span>
+        </div>
+        <p class="tier-desc">Everything in Tier I, plus we deploy the top two priority layers identified in your audit. Done in 30 days.</p>
+        <ul class="tier-features">
+          <li>Everything in Tier I included</li>
+          <li>Top 2 layers deployed in your environment</li>
+          <li>Data cleanup and migration</li>
+          <li>Custom AI extraction tuned to your products</li>
+          <li>Native B2B configuration</li>
+          <li>Live training session for your team</li>
+          <li>30-day post-launch support</li>
+          <li>Two-week iteration window</li>
+        </ul>
+        <a href="https://calendly.com/justinaconnect/free-hvac-revenue-audit" class="tier-cta">
+          <span>Start the build</span>
+          <span>→</span>
+        </a>
+        <div class="tier-guarantee">
+          <span>●</span> Audit fee credited toward Tier II
+        </div>
+      </div>
+      
+      <div class="tier reveal">
+        <div class="tier-tag">Tier III · The Engine</div>
+        <h3 class="tier-name">Full-Stack Engine</h3>
+        <div class="tier-price">
+          <span class="tier-price-num"><sub>$</sub>15,000</span>
+          <span class="tier-price-period">Project fee</span>
+        </div>
+        <p class="tier-desc">All six layers deployed. Full automation architecture. Agent-ready infrastructure for the next era of B2B buying.</p>
+        <ul class="tier-features">
+          <li>Everything in Tier II included</li>
+          <li>All 6 layers deployed and integrated</li>
+          <li>Agent-ready commerce architecture</li>
+          <li>Custom dashboard and reporting</li>
+          <li>SOP documentation for your team</li>
+          <li>60-day post-launch support</li>
+          <li>Quarterly business review (year one)</li>
+          <li>Priority response SLA</li>
+        </ul>
+        <a href="https://calendly.com/justinaconnect/free-hvac-revenue-audit" class="tier-cta">
+          <span>Build the engine</span>
+          <span>→</span>
+        </a>
+        <div class="tier-guarantee">
+          <span style="color:var(--moss);">●</span> Audit fee credited · Concierge onboarding
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<section class="final-cta">
+  <div class="container">
+    <div class="final-cta-inner">
+      <h2 class="final-cta-headline reveal">
+        The April 2 window is <em>still open.</em><br>
+        It won't stay that way.
+      </h2>
+      <p class="final-cta-text reveal">
+        Five weeks ago, Shopify made enterprise B2B available to every merchant. The brands that deploy it in the next 90 days will compound that head start into market dominance. The ones who wait will spend the next year watching competitors pull ahead.
+      </p>
+      <a href="https://calendly.com/justinaconnect/free-hvac-revenue-audit" class="btn-primary reveal">
+        <span>Book your 25-min diagnostic</span>
+        <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-7-7l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div>© 2026 Aljoai · Wholesale Operations Autopsy</div>
+      <div>Built for B2B Shopify · Operating from Spain, serving worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
